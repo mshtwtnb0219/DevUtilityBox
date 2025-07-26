@@ -62,7 +62,12 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 p-4 flex flex-col shadow-md">
-      <div className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">Dev Utility Box</div>
+      <Link
+        href="/"
+        className="mb-8 text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+      >
+        Dev Utility Box
+      </Link>
       <nav className="flex-1 overflow-y-auto">
         <Accordion type="multiple" defaultValue={defaultOpenCategories} className="w-full">
           {navCategories.map((category) => (
