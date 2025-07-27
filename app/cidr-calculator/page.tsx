@@ -147,13 +147,6 @@ export default function CidrCalculatorPage() {
     })
   }
 
-  // 入力値が変更されたときに自動計算
-  // useEffect(() => {
-  //   if (ipAddress && subnetMask) {
-  //     calculateNetwork()
-  //   }
-  // }, [ipAddress, subnetMask])
-
   return (
     <div className="container mx-auto py-8">
       <Card className="w-full max-w-6xl mx-auto">
