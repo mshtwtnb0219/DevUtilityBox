@@ -68,7 +68,11 @@ export default function BulkReplacePage() {
       const handle = await window.showDirectoryPicker({ mode: "readwrite" })
       setDirectoryHandle(handle)
     } catch (error) {
-      console.error("ディレクトリ選択がキャンセルされました:", error)
+      // ユーザーがキャンセルした場合は何もしない（エラーログも出さない）
+      if (error instanceof Error && error.name === "AbortError") {
+        return
+      }
+      console.error("ディレクトリ選択中にエラーが発生しました:", error)
     }
   }
 
@@ -148,7 +152,11 @@ export default function BulkReplacePage() {
   ): Promise<ProcessResult> => {
     try {
       const file = await fileHandle.getFile()
-      let content = await file.text()
+
+      // ArrayBufferとして読み込んでからUTF-8でデコード
+      const arrayBuffer = await file.arrayBuffer()
+      const decoder = new TextDecoder("utf-8")
+      let content = decoder.decode(arrayBuffer)
 
       // BOM除去オプション
       if (removeBOM) {
@@ -203,9 +211,11 @@ export default function BulkReplacePage() {
         console.log(`バックアップオプションが有効です: ${fileHandle.name}`)
       }
 
-      // ファイル書き込み
+      // ファイル書き込み（UTF-8エンコーディングで）
       const writable = await fileHandle.createWritable()
-      await writable.write(content)
+      const encoder = new TextEncoder()
+      const encodedContent = encoder.encode(content)
+      await writable.write(encodedContent)
       await writable.close()
 
       return {
@@ -307,7 +317,15 @@ export default function BulkReplacePage() {
       `総マッチ数,${summary.totalMatches}`,
     ].join("\n")
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    // UTF-8 BOMを追加してExcelでの文字化けを防ぐ
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf])
+    const encoder = new TextEncoder()
+    const encodedContent = encoder.encode(csvContent)
+    const contentWithBom = new Uint8Array(bom.length + encodedContent.length)
+    contentWithBom.set(bom)
+    contentWithBom.set(encodedContent, bom.length)
+
+    const blob = new Blob([contentWithBom], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
     link.download = `bulk-replace-log-${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.csv`
