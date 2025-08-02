@@ -46,6 +46,7 @@ export default function BulkReplacePage() {
   const [summary, setSummary] = useState<ProcessSummary | null>(null)
   const [previewMode, setPreviewMode] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [matchMode, setMatchMode] = useState<"partial" | "exact">("partial")
 
   // クライアントサイドでのみ実行
   useEffect(() => {
@@ -168,14 +169,24 @@ export default function BulkReplacePage() {
 
       // 検索・置換処理
       if (typeof searchPattern === "string") {
-        const matches = content.split(searchPattern)
-        matchCount = matches.length - 1
+        // 文字列の場合は直接置換（Unicode対応）
+        const tempContent = content
+        let count = 0
+        let index = 0
+
+        while ((index = tempContent.indexOf(searchPattern, index)) !== -1) {
+          count++
+          index += searchPattern.length
+        }
+
+        matchCount = count
         if (matchCount > 0) {
           content = content.replaceAll(searchPattern, replaceText)
         }
       } else {
-        const matches = content.match(searchPattern)
-        matchCount = matches ? matches.length : 0
+        // 正規表現の場合（Unicode対応）
+        const matches = [...content.matchAll(searchPattern)]
+        matchCount = matches.length
         if (matchCount > 0) {
           content = content.replace(searchPattern, replaceText)
         }
@@ -268,7 +279,21 @@ export default function BulkReplacePage() {
             return
           }
         } else {
-          searchPattern = searchString
+          if (matchMode === "exact") {
+            // 完全一致の場合は単語境界を使用
+            const escapedString = searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+            // 日本語文字の場合は単語境界ではなく前後の文字をチェック
+            if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(searchString)) {
+              // 日本語文字が含まれる場合は前後に区切り文字があるかチェック
+              searchPattern = new RegExp(`(?<=^|[\\s\\p{P}])${escapedString}(?=[\\s\\p{P}]|$)`, "gu")
+            } else {
+              // 英数字の場合は従来の単語境界を使用
+              searchPattern = new RegExp(`\\b${escapedString}\\b`, "g")
+            }
+          } else {
+            // 部分一致の場合はそのまま
+            searchPattern = searchString
+          }
         }
 
         // ファイル処理
@@ -458,6 +483,40 @@ export default function BulkReplacePage() {
                 onCheckedChange={(checked) => setIsRegexMode(!!checked)}
               />
               <Label htmlFor="regex-mode">正規表現モード</Label>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">マッチモード</Label>
+              <div className="flex items-center space-x-4" role="radiogroup" aria-labelledby="match-mode-label">
+                <Label id="match-mode-label" className="sr-only">
+                  マッチモード選択
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="partial-match"
+                    name="match-mode"
+                    checked={matchMode === "partial"}
+                    onChange={() => setMatchMode("partial")}
+                    className="h-4 w-4"
+                    aria-label="部分一致モード"
+                    title="文字列の一部が一致する場合に置換します"
+                  />
+                  <Label htmlFor="partial-match">部分一致</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="exact-match"
+                    name="match-mode"
+                    checked={matchMode === "exact"}
+                    onChange={() => setMatchMode("exact")}
+                    className="h-4 w-4"
+                    aria-label="完全一致モード"
+                    title="単語全体が完全に一致する場合のみ置換します"
+                  />
+                  <Label htmlFor="exact-match">完全一致</Label>
+                </div>
+              </div>
             </div>
           </div>
 
