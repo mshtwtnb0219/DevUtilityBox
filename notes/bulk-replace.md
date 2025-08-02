@@ -68,4 +68,4 @@ test3
 
 **検索文字列（正規表現）：** test\d**正規表現モード：** ON**変更後：** sample$1
 
-**期待結果：** test1→sample1, test2→sample2, test3→sample3
+**期待結果：** test1→sample1, test2→sample2, test3→sample3  
