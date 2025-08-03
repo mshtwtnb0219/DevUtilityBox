@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DownloadIcon } from "lucide-react"
+import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DownloadIcon, CodeIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion" // Accordionコンポーネントをインポート
 
@@ -28,6 +28,11 @@ export function Sidebar() {
           name: "一括リネームツール",
           href: "/batch-rename",
           icon: FolderSyncIcon,
+        },
+        {
+          name: "フォーマット変換ツール",
+          href: "/format-converter",
+          icon: CodeIcon,
         },
       ],
     },
