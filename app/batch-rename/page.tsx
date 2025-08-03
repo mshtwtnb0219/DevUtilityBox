@@ -80,8 +80,15 @@ export default function BatchRenamePage() {
     dirHandle: FileSystemDirectoryHandle,
     recursive: boolean,
     currentPath = "",
-  ): Promise<{ handle: FileSystemHandle; path: string; type: "file" | "directory" }[]> => {
-    const items: { handle: FileSystemHandle; path: string; type: "file" | "directory" }[] = []
+  ): Promise<
+    { handle: FileSystemHandle; path: string; type: "file" | "directory"; parentHandle: FileSystemDirectoryHandle }[]
+  > => {
+    const items: {
+      handle: FileSystemHandle
+      path: string
+      type: "file" | "directory"
+      parentHandle: FileSystemDirectoryHandle
+    }[] = []
 
     try {
       for await (const [name, handle] of dirHandle.entries()) {
@@ -89,7 +96,7 @@ export default function BatchRenamePage() {
 
         if (handle.kind === "directory") {
           if (includeDirectories) {
-            items.push({ handle, path: fullPath, type: "directory" })
+            items.push({ handle, path: fullPath, type: "directory", parentHandle: dirHandle })
           }
 
           if (recursive) {
@@ -97,7 +104,7 @@ export default function BatchRenamePage() {
             items.push(...subItems)
           }
         } else if (handle.kind === "file" && includeFiles) {
-          items.push({ handle, path: fullPath, type: "file" })
+          items.push({ handle, path: fullPath, type: "file", parentHandle: dirHandle })
         }
       }
     } catch (error) {
@@ -188,6 +195,7 @@ export default function BatchRenamePage() {
     newName: string,
     fullPath: string,
     type: "file" | "directory",
+    parentHandle: FileSystemDirectoryHandle,
     preview = false,
   ): Promise<RenameResult> => {
     try {
@@ -215,10 +223,58 @@ export default function BatchRenamePage() {
         }
       }
 
+      // 大文字小文字のみの変更の場合は一時的な名前を使用
+      const isCaseOnlyChange = originalName.toLowerCase() === newName.toLowerCase()
+      const tempName = isCaseOnlyChange ? `${originalName}_temp_${Date.now()}` : newName
+
       // 実際のリネーム処理
-      // File System Access APIではリネーム機能が制限されているため、
-      // ここでは実際のリネームは行わず、成功として扱う
-      console.log(`リネーム: ${originalName} → ${newName}`)
+      if (type === "file") {
+        // ファイルの場合：新しいファイルを作成して元のファイルを削除
+        const fileHandle = handle as FileSystemFileHandle
+        const file = await fileHandle.getFile()
+
+        // 一時的な名前でファイルを作成
+        const tempFileHandle = await parentHandle.getFileHandle(tempName, { create: true })
+        const writable = await tempFileHandle.createWritable()
+        await writable.write(file)
+        await writable.close()
+
+        // 元のファイルを削除
+        await parentHandle.removeEntry(originalName)
+
+        // 大文字小文字のみの変更の場合は最終的な名前にリネーム
+        if (isCaseOnlyChange) {
+          const finalFileHandle = await parentHandle.getFileHandle(newName, { create: true })
+          const tempFile = await tempFileHandle.getFile()
+          const finalWritable = await finalFileHandle.createWritable()
+          await finalWritable.write(tempFile)
+          await finalWritable.close()
+
+          // 一時ファイルを削除
+          await parentHandle.removeEntry(tempName)
+        }
+      } else {
+        // ディレクトリの場合：新しいディレクトリを作成して内容をコピー後、元を削除
+        const dirHandle = handle as FileSystemDirectoryHandle
+
+        // 一時的な名前でディレクトリを作成
+        const tempDirHandle = await parentHandle.getDirectoryHandle(tempName, { create: true })
+
+        // ディレクトリの内容を再帰的にコピー
+        await copyDirectoryContents(dirHandle, tempDirHandle)
+
+        // 元のディレクトリを削除
+        await parentHandle.removeEntry(originalName, { recursive: true })
+
+        // 大文字小文字のみの変更の場合は最終的な名前にリネーム
+        if (isCaseOnlyChange) {
+          const finalDirHandle = await parentHandle.getDirectoryHandle(newName, { create: true })
+          await copyDirectoryContents(tempDirHandle, finalDirHandle)
+
+          // 一時ディレクトリを削除
+          await parentHandle.removeEntry(tempName, { recursive: true })
+        }
+      }
 
       return {
         originalName,
@@ -236,6 +292,24 @@ export default function BatchRenamePage() {
         type,
         status: "error",
         message: `エラー: ${error instanceof Error ? error.message : "不明なエラー"}`,
+      }
+    }
+  }
+
+  // ディレクトリの内容を再帰的にコピーする関数を追加
+  const copyDirectoryContents = async (sourceDir: FileSystemDirectoryHandle, targetDir: FileSystemDirectoryHandle) => {
+    for await (const [name, handle] of sourceDir.entries()) {
+      if (handle.kind === "file") {
+        const fileHandle = handle as FileSystemFileHandle
+        const file = await fileHandle.getFile()
+        const newFileHandle = await targetDir.getFileHandle(name, { create: true })
+        const writable = await newFileHandle.createWritable()
+        await writable.write(file)
+        await writable.close()
+      } else if (handle.kind === "directory") {
+        const subDirHandle = handle as FileSystemDirectoryHandle
+        const newSubDirHandle = await targetDir.getDirectoryHandle(name, { create: true })
+        await copyDirectoryContents(subDirHandle, newSubDirHandle)
       }
     }
   }
@@ -268,11 +342,11 @@ export default function BatchRenamePage() {
         const results: RenameResult[] = []
         let itemIndex = 0
 
-        for (const { handle, path, type } of items) {
+        for (const { handle, path, type, parentHandle } of items) {
           const originalName = handle.name
           const newName = generateNewName(originalName, itemIndex, type)
 
-          const result = await renameItem(handle, originalName, newName, path, type, preview)
+          const result = await renameItem(handle, originalName, newName, path, type, parentHandle, preview)
           results.push(result)
 
           if (result.status === "success" && originalName !== newName) {
