@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, GitBranchIcon, CodeIcon } from "lucide-react"
+import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DatabaseIcon, CodeIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -41,9 +41,9 @@ export function Sidebar() {
       value: "dev-tools",
       items: [
         {
-          name: "Git一括操作ツール",
-          href: "/git-batch",
-          icon: GitBranchIcon,
+          name: "SQL非互換一覧表",
+          href: "/sql-compatibility",
+          icon: DatabaseIcon,
         },
       ],
     },

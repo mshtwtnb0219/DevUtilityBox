@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, GitBranchIcon, CodeIcon } from "lucide-react"
+import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DatabaseIcon, CodeIcon } from "lucide-react"
 
 export default function HomePage() {
   const tools = [
@@ -46,14 +46,14 @@ export default function HomePage() {
       features: ["自動フォーマット判定", "構文エラー検出", "整形機能", "コピー・保存機能"],
     },
     {
-      name: "Git一括操作ツール",
-      description: "複数の個人開発リポジトリを一括で管理・更新します。Pull/Push/Statusを効率的に実行。",
-      href: "/git-batch",
-      icon: GitBranchIcon,
+      name: "SQL非互換一覧表",
+      description: "Oracle、PostgreSQL、MySQLの関数・構文の非互換性を一覧で確認できます。",
+      href: "/sql-compatibility",
+      icon: DatabaseIcon,
       category: "開発ツール",
-      difficulty: "中",
+      difficulty: "低",
       status: "実装済み",
-      features: ["一括Pull/Push", "ステータス確認", "コミットテンプレート", "リポジトリ管理"],
+      features: ["関数・構文比較", "互換性レベル表示", "移行のヒント", "CSV出力"],
     },
     {
       name: "CIDR計算ツール",
@@ -165,7 +165,7 @@ export default function HomePage() {
           <li>左側のサイドバーから使用したいツールを選択してください</li>
           <li>各ツールページで必要な設定を行います</li>
           <li>プレビュー機能で結果を確認してから実行してください</li>
-          <li>Git一括操作ツールで複数リポジトリを効率的に管理できます</li>
+          <li>SQL非互換一覧表でデータベース移行時の参考情報を確認できます</li>
         </ol>
       </div>
     </div>
