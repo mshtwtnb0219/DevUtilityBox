@@ -34,6 +34,11 @@ export function Sidebar() {
           href: "/format-converter",
           icon: CodeIcon,
         },
+        {
+          name: "Markdownテンプレート",
+          href: "/markdown-template",
+          icon: FileTextIcon,
+        },
       ],
     },
     {
