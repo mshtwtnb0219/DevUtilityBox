@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DownloadIcon, CodeIcon } from "lucide-react"
+import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, GitBranchIcon, CodeIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion" // Accordionコンポーネントをインポート
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -12,7 +12,7 @@ export function Sidebar() {
   const navCategories = [
     {
       title: "基本ツール",
-      value: "basic-tools", // AccordionItem の value
+      value: "basic-tools",
       items: [
         {
           name: "一括置換ツール",
@@ -37,24 +37,24 @@ export function Sidebar() {
       ],
     },
     {
+      title: "開発ツール",
+      value: "dev-tools",
+      items: [
+        {
+          name: "Git一括操作ツール",
+          href: "/git-batch",
+          icon: GitBranchIcon,
+        },
+      ],
+    },
+    {
       title: "ネットワークツール",
-      value: "network-tools", // AccordionItem の value
+      value: "network-tools",
       items: [
         {
           name: "CIDR計算ツール",
           href: "/cidr-calculator",
           icon: NetworkIcon,
-        },
-      ],
-    },
-    {
-      title: "補助機能",
-      value: "utility-features", // AccordionItem の value
-      items: [
-        {
-          name: "操作ログダウンロード",
-          href: "/log-download",
-          icon: DownloadIcon,
         },
       ],
     },
@@ -82,8 +82,6 @@ export function Sidebar() {
               </AccordionTrigger>
               <AccordionContent className="pb-1 pt-0">
                 <div className="space-y-1 pl-3">
-                  {" "}
-                  {/* 項目を少しインデント */}
                   {category.items.map((item) => (
                     <Link
                       key={item.href}

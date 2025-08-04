@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, DownloadIcon, CodeIcon } from "lucide-react"
+import { PuzzleIcon, FileTextIcon, NetworkIcon, FolderSyncIcon, GitBranchIcon, CodeIcon } from "lucide-react"
 
 export default function HomePage() {
   const tools = [
@@ -32,28 +32,8 @@ export default function HomePage() {
       icon: FolderSyncIcon,
       category: "基本ツール",
       difficulty: "中",
-      status: "開発中",
+      status: "実装済み",
       features: ["パターン置換", "大文字小文字変換", "接頭辞付与", "プレビュー機能"],
-    },
-    {
-      name: "CIDR計算ツール",
-      description: "IPアドレスとサブネットマスクからネットワーク情報を取得します。",
-      href: "/cidr-calculator",
-      icon: NetworkIcon,
-      category: "ネットワークツール",
-      difficulty: "低",
-      status: "開発中",
-      features: ["ネットワークアドレス計算", "ホスト数算出", "逆引き範囲", "サブネット分割"],
-    },
-    {
-      name: "操作ログダウンロード",
-      description: "実行されたツールの操作ログをCSVまたはExcel形式でダウンロードします。",
-      href: "/log-download",
-      icon: DownloadIcon,
-      category: "補助機能",
-      difficulty: "低",
-      status: "開発中",
-      features: ["ログフィルタ", "CSV出力", "Excel出力", "実行履歴"],
     },
     {
       name: "フォーマット変換ツール",
@@ -64,6 +44,26 @@ export default function HomePage() {
       difficulty: "低",
       status: "実装済み",
       features: ["自動フォーマット判定", "構文エラー検出", "整形機能", "コピー・保存機能"],
+    },
+    {
+      name: "Git一括操作ツール",
+      description: "複数の個人開発リポジトリを一括で管理・更新します。Pull/Push/Statusを効率的に実行。",
+      href: "/git-batch",
+      icon: GitBranchIcon,
+      category: "開発ツール",
+      difficulty: "中",
+      status: "実装済み",
+      features: ["一括Pull/Push", "ステータス確認", "コミットテンプレート", "リポジトリ管理"],
+    },
+    {
+      name: "CIDR計算ツール",
+      description: "IPアドレスとサブネットマスクからネットワーク情報を取得します。",
+      href: "/cidr-calculator",
+      icon: NetworkIcon,
+      category: "ネットワークツール",
+      difficulty: "低",
+      status: "実装済み",
+      features: ["ネットワークアドレス計算", "ホスト数算出", "逆引き範囲", "サブネット分割"],
     },
   ]
 
@@ -91,7 +91,7 @@ export default function HomePage() {
     }
   }
 
-  const categories = ["基本ツール", "ネットワークツール", "補助機能"]
+  const categories = ["基本ツール", "開発ツール", "ネットワークツール"]
 
   return (
     <div className="container mx-auto py-8">
@@ -165,7 +165,7 @@ export default function HomePage() {
           <li>左側のサイドバーから使用したいツールを選択してください</li>
           <li>各ツールページで必要な設定を行います</li>
           <li>プレビュー機能で結果を確認してから実行してください</li>
-          <li>実行ログは「操作ログダウンロード」から確認・ダウンロードできます</li>
+          <li>Git一括操作ツールで複数リポジトリを効率的に管理できます</li>
         </ol>
       </div>
     </div>
