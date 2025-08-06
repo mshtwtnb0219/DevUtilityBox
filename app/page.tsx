@@ -22,7 +22,7 @@ export default function HomePage() {
       icon: FileTextIcon,
       category: "基本ツール",
       difficulty: "低",
-      status: "開発中",
+      status: "実装済み",
       features: ["BOM自動検出", "一括変換", "実行ログ", "ファイル再帰処理"],
     },
     {
@@ -142,7 +142,7 @@ export default function HomePage() {
                         <tool.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                         <div className="flex gap-2">
                           <Badge className={getStatusColor(tool.status)}>{tool.status}</Badge>
-                          <Badge className={getDifficultyColor(tool.difficulty)}>難易度: {tool.difficulty}</Badge>
+                          {/* <Badge className={getDifficultyColor(tool.difficulty)}>難易度: {tool.difficulty}</Badge> */}
                         </div>
                       </div>
                       <CardTitle className="text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
