@@ -11,6 +11,11 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Dev Utility Box",
   description: "ITエンジニアのための“面倒くさい”効率化ツール集",
+    icons: {
+    icon: "/icon.png", // public/favicon.ico
+    shortcut: "/icon.png",
+    apple: "/icon.png", // iOS用
+  },
 }
 
 export default function RootLayout({
